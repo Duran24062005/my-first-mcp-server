@@ -8,23 +8,36 @@ function getAllowedHosts() {
     .map((host) => host.trim())
     .filter(Boolean);
 
-  const defaultLocalHosts = ["localhost", "127.0.0.1", "[::1]"];
-  const vercelHost = process.env.VERCEL_URL?.trim();
-
-  if (!vercelHost && configuredHosts.length === 0) {
-    return undefined;
+  if (configuredHosts.length > 0) {
+    return [...new Set(configuredHosts)];
   }
 
-  return [...new Set([...defaultLocalHosts, ...configuredHosts, ...(vercelHost ? [vercelHost] : [])])];
+  return undefined;
+}
+
+function getAppOptions() {
+  const isVercelRuntime = process.env.VERCEL === "1" || Boolean(process.env.VERCEL_ENV);
+  const allowedHosts = getAllowedHosts();
+
+  if (isVercelRuntime) {
+    return {
+      host: "0.0.0.0",
+      allowedHosts
+    };
+  }
+
+  return {
+    host: process.env.HOST ?? "127.0.0.1",
+    allowedHosts
+  };
 }
 
 export function createApp() {
-  const app = createMcpExpressApp({
-    host: process.env.HOST ?? "127.0.0.1",
-    allowedHosts: getAllowedHosts()
-  });
+  const app = createMcpExpressApp(getAppOptions());
 
   app.get("/", (_req, res) => {
+    const isVercelRuntime = process.env.VERCEL === "1" || Boolean(process.env.VERCEL_ENV);
+
     res.json({
       name: "study-assistant-mcp",
       status: "ok",
@@ -32,7 +45,10 @@ export function createApp() {
       endpoints: {
         mcp: "/mcp"
       },
-      allowedHosts: getAllowedHosts() ?? ["localhost", "127.0.0.1", "[::1]"]
+      hostValidation: {
+        mode: isVercelRuntime ? "vercel-runtime" : "localhost-default",
+        allowedHosts: getAllowedHosts() ?? (isVercelRuntime ? "all hosts allowed unless ALLOWED_HOSTS is set" : ["localhost", "127.0.0.1", "[::1]"])
+      }
     });
   });
 
