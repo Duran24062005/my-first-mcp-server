@@ -5,6 +5,17 @@ import { createStudyServer } from "./createStudyServer.js";
 export function createApp() {
   const app = createMcpExpressApp();
 
+  app.get("/", (_req, res) => {
+    res.json({
+      name: "study-assistant-mcp",
+      status: "ok",
+      message: "Study Assistant MCP server is running.",
+      endpoints: {
+        mcp: "/mcp"
+      }
+    });
+  });
+
   app.post("/mcp", async (req, res) => {
     const server = createStudyServer();
     const transport = new StreamableHTTPServerTransport({
