@@ -39,11 +39,12 @@ Por defecto levanta en `http://127.0.0.1:3000`.
 Variables opcionales:
 - `PORT`: puerto HTTP
 - `HOST`: host de bind, por defecto `127.0.0.1`
-- `ALLOWED_HOSTS`: lista separada por comas para permitir hosts adicionales
+- `ALLOWED_HOSTS`: lista separada por comas para restringir hosts válidos de forma explícita
 
 Notas de despliegue:
-- En Vercel se permite automáticamente `VERCEL_URL` para evitar errores de `Invalid Host`.
-- Si usas dominio propio u otro proxy, define `ALLOWED_HOSTS=tu-dominio.com,otro-host.com`.
+- En local se mantiene la protección por defecto para `localhost`, `127.0.0.1` y `[::1]`.
+- En Vercel se desactiva esa validación local por defecto para evitar errores de `Invalid Host`.
+- Si quieres restringir hosts también en Vercel o detrás de otro proxy, define `ALLOWED_HOSTS=tu-dominio.com,otro-host.com`.
 
 Rutas disponibles:
 - `/`
