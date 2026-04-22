@@ -34,11 +34,17 @@ npm install
 npm start
 ```
 
-Por defecto levanta en `http://127.0.0.1:3000/mcp`.
+Por defecto levanta en `http://127.0.0.1:3000`.
 
 Variables opcionales:
 - `PORT`: puerto HTTP
 - `HOST`: host de bind, por defecto `127.0.0.1`
+
+Rutas disponibles:
+- `/`
+  Respuesta JSON simple para confirmar que el servicio está arriba.
+- `/mcp`
+  Endpoint MCP principal.
 
 ## Qué expone el servidor
 
