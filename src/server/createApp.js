@@ -2,8 +2,27 @@ import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/
 import { createMcpExpressApp } from "@modelcontextprotocol/sdk/server/express.js";
 import { createStudyServer } from "./createStudyServer.js";
 
+function getAllowedHosts() {
+  const configuredHosts = (process.env.ALLOWED_HOSTS ?? "")
+    .split(",")
+    .map((host) => host.trim())
+    .filter(Boolean);
+
+  const defaultLocalHosts = ["localhost", "127.0.0.1", "[::1]"];
+  const vercelHost = process.env.VERCEL_URL?.trim();
+
+  if (!vercelHost && configuredHosts.length === 0) {
+    return undefined;
+  }
+
+  return [...new Set([...defaultLocalHosts, ...configuredHosts, ...(vercelHost ? [vercelHost] : [])])];
+}
+
 export function createApp() {
-  const app = createMcpExpressApp();
+  const app = createMcpExpressApp({
+    host: process.env.HOST ?? "127.0.0.1",
+    allowedHosts: getAllowedHosts()
+  });
 
   app.get("/", (_req, res) => {
     res.json({
@@ -12,7 +31,8 @@ export function createApp() {
       message: "Study Assistant MCP server is running.",
       endpoints: {
         mcp: "/mcp"
-      }
+      },
+      allowedHosts: getAllowedHosts() ?? ["localhost", "127.0.0.1", "[::1]"]
     });
   });
 
